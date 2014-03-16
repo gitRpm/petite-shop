@@ -1038,16 +1038,23 @@ var google_remarketing_only = true;
         facetTitleCallback : function(facet_container, facet_title, facet) {
             facet_title.prepend("<div class='icon'></div>");
         },
-        afterFacetsChange: function() {
+        afterFacetsChange: function() {            
             // Insert the size description
-            $('#searchspring-size_field_container a[title="Size"]').
-                append("<span style='display:block; margin:15px 0px -10px 0px; color:#bebebe'>Range includes petite and petite friendly sizes</span>");
+            if (!$('#size-range').length) {
+                    $('#searchspring-size_field_container a[title="Size"]').
+                        after("<span id='size-range'>Range includes petite and petite friendly sizes</span>");
+            }
+             
+            if(SearchSpring.jQuery("#searchspring-main").hasClass("searchspring-no_results")){
+                SearchSpring.jQuery("#searchspring-main #searchspring-options").hide();
+            } else {
+                SearchSpring.jQuery("#searchspring-main #searchspring-options").show();
+                SearchSpring.jQuery("#searchspring-options").insertBefore(SearchSpring.jQuery(".Left.fleft"));
+            }
             // This creates the color pallet
             var colorList = "#searchspring-color_container ul.element_container";
-            $(colorList).css({"width":"140px", "margin":"12px 0 0 30px"});
             $(colorList).find('li').each(function(){
                 $('a span', this).remove();
-                $(this).css({"display": "inline"});
                 var $this = $('a', this);
                 var color = $this.text().trim();
                 $this.attr('title', color);
@@ -1056,8 +1063,8 @@ var google_remarketing_only = true;
                 } else if (color == 'Print') {
                     $this.css({"background":"url(http://cdn.searchspring.net/ajax_search/sites/10ulac/img/print.jpg)"});
                 }
+                $this.css({"background-color": color});
                 $this.empty();
-                $this.css({"width":"21px","height": "21", "margin": "2px", "padding": "0","float":"left", "background-color": color, "border": "1px solid #D8D8D8"});
                 $('.remove').remove();
             });
             
@@ -1067,10 +1074,26 @@ var google_remarketing_only = true;
                 var $this = $(this);
                 $("#searchspring-brand_container ul.element_container").find('li').each(
                 function(){
-                    var input = $this.val();
+                    var input = $this.val().toLowerCase();
+                    var slideUp = false;
                     if (($(this)).index()) {
-                        if (!$(this).text().trim().toLowerCase().match("^"+input.toLowerCase())) {
-                                $(this).slideUp();
+                        var listStr = $(this).text().trim().toLowerCase();
+                        var listArr = listStr.split(" ");
+                        for (var i=0; i < listArr.length; i++){
+                            for (var x=0; x < listArr.length-2; x++) {
+                                if (x+1>i){
+                                    listArr[i] = listArr[i].concat(" "+listArr[x+1]);
+                                }
+                            }
+                            if (!listArr[i].match("^"+input)) {
+                                slideUp = true;
+                            } else {
+                                slideUp = false;
+                                break;
+                            }
+                        }
+                        if (slideUp) {
+                            $(this).slideUp();
                         } else {
                             $(this).slideDown();
                         }
@@ -1142,6 +1165,352 @@ var google_remarketing_only = true;
 
 /***** ADD IN CSS HERE FROM PART 1 *****/
 
+.per-page, .breadcrumbs {
+    display: none;
+}
+
+#searchspring .searchspring-pageSelect:hover,
+#searchspring .searchspring-pageSelect.highlight,
+#searchspring td.searchspring-total_pages:hover {
+    color: #3A3838;
+    background: none;
+}
+
+#searchspring .searchspring-pageSelect.highlight {
+    font-weight: bold;
+}
+
+#searchspring .searchspring-pageOf {
+    font-size: 12px !important;
+}
+
+#searchspring .searchspring-pageSelect,
+#searchspring .searchspring-pageOf,
+#searchspring td.searchspring-total_pages
+{
+    font-family: 'Karla', Arial, sans-serif;
+    color: #ACA9A9;
+    border: 0;
+    text-align: center;
+    font-size: 14px;
+    
+}
+#searchspring #searchspring-main .pagination {
+    float: left;
+    margin: 10px 0 10px 20px;
+    height: 35px;
+}
+
+
+#searchspring #searchspring-main .pagination td.searchspring-next {
+    background-position: -16px 0;
+}
+
+#searchspring #searchspring-main .pagination td.searchspring-next,
+#searchspring #searchspring-main .pagination td.searchspring-previous {
+    background: url('//cdn.searchspring.net/ajax_search/img/ss-sprite-css-large.png') no-repeat -2px 0px;
+    background-color: #C47A98;
+    float: left;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    text-indent: -99px;
+    width: 12px;
+    position: relative;
+    top: 7px;
+    border: 0;
+}
+
+#searchspring #searchspring-main .pagination td.searchspring-next {
+    background-position: -16px 0;
+    background-position-x: -16px;
+    background-position-y: 0px;
+}
+
+#searchspring #searchspring-main .sort-by select {
+    margin-left: 8px;
+    font-size: 12px;
+    color: #444440;
+    font-family: 'karla',Arial,Sans-Serif;
+    line-height: 15px;
+}
+
+#searchspring #searchspring-main .sort-by {
+    float: right;
+    font-size: 12px;
+    color: #5A5353;
+    font-family: 'karla', Arial, Sans-Serif;
+    padding: 0;
+    margin: 10px 0 -10px 0;
+}
+
+#searchspring-options {
+    width: 100%;
+    margin: 0 0 20px;
+    padding: 20px 0 0;
+    color: #3A3838;
+}
+
+#searchspring-options h1{
+    color: #5A5353;
+    font-size: 14px;
+    font-family: 'karla', Arial, Sans-Serif;
+    font-weight: bold;
+    text-transform: none;
+    letter-spacing: normal;
+    line-height: 21px;
+    padding: 0;
+}
+
+#searchspring-sidebar #searchspring-summary_header {
+    line-height: 40px;
+    margin-bottom: 5px;
+}
+
+#searchspring-sidebar h3.filter {
+    font-family: 'karla', Arial, Sans-Serif;
+    background: none;
+    color: #3A3838;
+    text-align: left;
+    padding-left: 0px;
+    padding-right: 0px;
+    border-bottom: 1px dashed #D4D3D3;
+    height: 35px;
+    padding: 10px 0;
+    font-size: 16px;
+    margin: 0px;
+    width: 193px;
+    line-height: 35px;
+}
+
+#searchspring-sidebar ul#searchspring-facets {
+    padding: 20px 20px 0 0;
+    width: 173px;
+}
+
+#searchspring-sidebar.left #searchspring-facets li ul {
+    max-height: 367px;
+    overflow-y: auto;
+    margin: 5px 0;
+}
+
+#searchspring-sidebar.left ul#searchspring-facets li,
+#searchspring-sidebar.left #searchspring-facets li ul li.filtered_link {
+    background: none;
+    width: auto;
+    text-align: left;
+    line-height: 14px;
+    font-family: 'Karla', Arial, sans-serif;
+    letter-spacing: 1.3px;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+#searchspring-sidebar #searchspring-summary_header,
+#searchspring-sidebar ul li a.facet_title {
+    padding: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 14px;
+    font-family: 'Karla',Arial,Sans-Serif;
+    font-weight: normal;
+    background: none;
+}
+
+#searchspring-sidebar #searchspring-summary li,
+#searchspring-sidebar ul li ul li a {
+    font-size: 13px;
+    color: #ACA9A9;
+    padding: 0;
+    margin: 0 0 5px 0;
+    font-family: 'Karla', Arial, sans-serif;
+    letter-spacing: 1.3px;
+}
+
+#searchspring-sidebar #searchspring-summary li {
+    background-position: 0px center;
+    padding-left: 20px;
+}
+
+#searchspring-sidebar.left #searchspring-facets li ul li.filtered_link {
+    cursor: pointer;
+    color: #C47A98;
+}
+
+#searchspring-sidebar #searchspring-facets li ul li.show_more:hover,
+#searchspring-sidebar.left #searchspring-facets li ul li.filtered_link:hover,
+#searchspring-sidebar ul li ul li a:hover,
+#searchspring-sidebar.left #searchspring-facets li ul li a:hover .searchspring-facet_count {
+    color: #C47A98;
+    background: none;
+}
+
+#searchspring-sidebar ul li ul li a:hover {
+    font-size: 13px;
+}
+
+#searchspring-sidebar.left #searchspring-facets li ul li a .searchspring-facet_count {
+    font-size: 10px;
+    color: #727272;
+}
+
+.icon {
+    width: 16px;
+    height: 16px;
+    float: right;
+}
+
+#searchspring-sidebar.left #searchspring-facets li a.facet_title.open .icon {
+    background: url('//cdn.searchspring.net/ajax_search/img/ss-sprite-css-large.png') no-repeat -115px 0px #3A3838;
+}
+
+body #searchspring-sidebar.left #searchspring-facets li a.facet_title .icon {
+    background: url('//cdn.searchspring.net/ajax_search/img/ss-sprite-css-large.png') no-repeat -100px 0px #3A3838;
+}
+
+
+#searchspring-sidebar ul li a.open {
+    background: none;
+}
+
+#searchspring-sidebar.left ul li.slider div.element_container .slider_value {
+    font-size: 12px;
+    color: #ACA9A9;
+}
+
+#searchspring-sidebar.left ul li.slider div.element_container {
+    width: 100%;
+    margin: 5px 0 15px;
+    padding: 0;
+    letter-spacing: 0;
+}
+
+#searchspring-sidebar ul li.slider div.element_container div.slider {
+    height: 0px;
+    margin: 12px 0 0 5px;
+    width: 158px;
+    border: 0;
+    border-bottom: 2px solid #000;
+}
+
+#searchspring-sidebar .slider .ui-slider-horizontal .ui-slider-handle {
+    border: 1px solid pink;
+    border-radius: 10px;
+    border: 0;
+    width: 16px;
+    height: 16px;
+    top: -7px;
+    background: #C47A98;
+    cursor: pointer;
+}
+
+#searchspring-sidebar ul li.slider div.element_container a.slider_reset {
+    float: right;
+    margin-top: -3px;
+    padding: 0px 5px;
+    font-size: 11px;
+}
+
+#searchspring-sidebar.left #searchspring-facets li.facet_container {
+    background: none;
+    padding: 0;
+    margin: 0 0 14px;
+}
+
+#searchspring-sidebar ul #searchspring-size_field_container #size-range {
+    display:block;
+    margin: 2px 0 0 0;
+    color:#ACA9A9;
+    letter-spacing: 0;
+}
+
+#searchspring-sidebar ul #searchspring-size_field_container ul.element_container {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+
+#searchspring-sidebar ul #searchspring-size_field_container ul.element_container li {
+    display: inline-block;
+    float: none;
+    height: 27px;
+    width: 76px;
+    float: none;
+    margin: 3px;
+    border: none;
+}
+
+#searchspring-sidebar.left #searchspring-facets li.grid ul li a:hover,
+#searchspring-sidebar.left #searchspring-facets li.grid ul li a.highlight {
+    background: #F3F3F3;
+    color: #888;
+    border: 1px solid #000;
+}
+
+#searchspring-sidebar ul #searchspring-size_field_container ul.element_container li a.option_link {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+    font-family: 'karla', sans-serif;
+    font-size: 9px;
+    background: #FDFDFD;
+    color: #000;
+    border: 1px solid #000;
+    line-height: 29px;
+    padding: 0;
+}
+
+#searchspring-sidebar.left #searchspring-facets li.list ul li a {
+    background: url("//cdn.searchspring.net/ajax_search/img/nocheck.png") no-repeat 0 0 transparent;
+    padding-left: 18px;
+}
+
+#searchspring-sidebar.left #searchspring-facets li.list ul li a:hover,
+body #searchspring-sidebar.left #searchspring-facets li.list ul li a.highlight {
+    background: url("//cdn.searchspring.net/ajax_search/img/check.png") no-repeat 0 0 transparent;
+}
+
+#searchspring-sidebar.left #searchspring-facets li ul li a.highlight,
+#searchspring-sidebar.left #searchspring-facets li ul li a.highlight .searchspring-facet_count {
+    color: #C47A98;
+}
+
+#searchspring-color_container ul.element_container {
+    width: 150px;
+    margin: 5px 0 0 0;
+}
+
+#searchspring-sidebar.left #searchspring-facets li#searchspring-color_container ul li {
+    margin: 3px;
+    display: inline-block;
+    padding: 0;
+}
+
+#searchspring-sidebar.left #searchspring-facets li#searchspring-color_container .option_link:hover:before,
+#searchspring-sidebar.left #searchspring-facets li#searchspring-color_container .option_link.highlight:before {
+    background-image: url("//cdn.searchspring.net/ajax_search/img/check_white.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    border-color: #999999;
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+}
+
+#searchspring-sidebar.left #searchspring-facets li#searchspring-color_container ul li a {
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    padding: 0;
+    float: left; 
+    border: 1px solid #D8D8D8;
+    box-shadow: 2px 2px 2px #CCC;
+    background-image: none;
+}
+
 #searchspring #searchspring-main {
     width: auto;
 }
@@ -1149,6 +1518,7 @@ var google_remarketing_only = true;
 #searchspring #searchspring-main #searchspring-search_results {
     padding: 20px 0 0 20px;
     border-top: 1px dashed #D4D3D3;
+    margin-top: 20px;
 }
 
 #searchspring #searchspring-main .grid .item {
@@ -1180,6 +1550,50 @@ var google_remarketing_only = true;
     position: absolute;
     left: 0;
     top: 0;
+}
+
+#searchspring #searchspring-main .grid .item:hover .social {
+    display: block;
+    z-index: 20;
+}
+
+#searchspring .grid .pinterest, body #searchspring .grid .facebook, body #searchspring .grid .gplus {
+    margin: 2px auto;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+#searchspring .grid .social {
+    display: block;
+    margin: 0 23px;
+    display: none;
+    position: absolute;
+    top: 224px;
+}
+
+#searchspring .grid .social a {
+    position: relative !important;
+}
+
+#searchspring .grid .pinterest a {
+    background-image: url('//d2r7ualogzlf1u.cloudfront.net/ajax_search/img/pinterest.png');
+    width: 43px;
+    height: 20px;
+    display: block;
+}
+
+#searchspring .grid .facebook a {
+    background-image: url('//d2r7ualogzlf1u.cloudfront.net/ajax_search/img/fb.png');
+    width: 46px;
+    height: 20px;
+    display: block;
+}
+
+#searchspring .grid .gplus a {
+    background-image: url('//d2r7ualogzlf1u.cloudfront.net/ajax_search/img/gplus.png');
+    width: 32px;
+    height: 20px;
+    display: block;
 }
 
 #searchspring #searchspring-main .grid .item .ProductDetails {
@@ -1242,14 +1656,71 @@ var google_remarketing_only = true;
     text-decoration: none;
 }
 
+#searchspring #searchspring-bottom_container {
+    border-top: 1px dashed #D4D3D3;
+}
+
+#searchspring .pagination.bottom ~ a {
+    margin: 15px 0;
+    float: right;
+    border: 0;
+}
+
+#searchspring #searchspring-main #searchspring-compare_box {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    z-index: 9999;
+    box-shadow: 1px 1px 2px #555;
+    background: #D3A5B7;
+    border: 0;
+    padding-top: 2px;
+    border: 1px solid #6D4354;
+}
+
+#searchspring #searchspring-main #searchspring-compare_box #searchspring-compare_text {
+    color: #FFF;
+    text-transform: uppercase;
+    font-weight: normal;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'karla', Arial, Sans-Serif;
+}
+
+#searchspring #searchspring-main #searchspring-compare_box #searchspring-compare_button {
+    background-image: url("//d2r7ualogzlf1u.cloudfront.net/ajax_search/img/pagination-next-background-generic.png");
+}
+
+#searchspring-compare_table .searchspring-compare_table_separator {
+    color: white;
+    font-size: 16px;
+}
+
+#searchspring-compare_table .searchspring-compare_table_separator {
+    background-color: #C37A98;
+}
+
+#searchspring-compare_table .searchspring-compare_name a {
+    color: #ACA9A9;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 16px;
+    text-align: left;
+    text-decoration: none;
+}
+
+#searchspring-compare_table .searchspring-compare_name a:hover {
+    text-decoration: underline;
+}
+
 /*for search-within filter*/
 #searchspring-sidebar #searchspring-facets #search-within {
-    width:70%;
+    width:75%;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
     color: #bebebe;
-    margin: 10px 0 10px 10px;
+    margin: 10px 0 10px 0;
     padding: 0 10px 0 10px;
 }
 
